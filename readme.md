@@ -64,9 +64,32 @@ Client Response ← Proxy Server ← Target Server Response
 |----------------|------------------|----------|----------------|
 | SQL Injection | Regex pattern matching in URL/body | Block with 403 | No |
 | Directory Traversal | Path traversal pattern detection | Block with 403 | No |
+| Cross-Site Scripting (XSS) | Script/JavaScript pattern detection | Block with 403 | No |
 | Brute Force | Failed login attempt tracking | Block subsequent requests | Yes |
 
-**Key Insight:** Separating stateless (SQL injection, directory traversal) from stateful (brute-force) heuristics allows for different optimization strategies and cleaner code organization.
+### Attack Definitions & Common Methods
+
+**SQL Injection**
+- **What:** Malicious SQL code inserted into application queries to manipulate database operations
+- **Common methods:** `' OR 1=1 --`, `'; DROP TABLE users; --`, `UNION SELECT * FROM passwords`
+- **Target:** Database-driven web applications, login forms, search fields
+
+**Directory Traversal** 
+- **What:** Attempts to access files outside the intended directory structure
+- **Common methods:** `../../../etc/passwd`, `..\\windows\\system32\\config\\sam`, URL-encoded variants
+- **Target:** File serving endpoints, download functionality, path parameters
+
+**Cross-Site Scripting (XSS)**
+- **What:** Injection of malicious JavaScript into web pages viewed by other users
+- **Common methods:** `<script>alert('XSS')</script>`, `javascript:alert(1)`, `<img onerror="alert(1)" src="x">`
+- **Target:** User input fields, comments, search results, any reflected content
+
+**Brute Force**
+- **What:** Repeated login attempts to guess credentials or overwhelm rate limits
+- **Common methods:** Automated password guessing, credential stuffing, rapid-fire requests
+- **Target:** Login endpoints, authentication systems, API rate limits
+
+**Key Insight:** Separating stateless (SQL injection, directory traversal, XSS) from stateful (brute-force) heuristics allows for different optimization strategies and cleaner code organization.
 
 ---
 
