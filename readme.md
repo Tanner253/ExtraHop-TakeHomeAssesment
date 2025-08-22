@@ -142,15 +142,31 @@ Client Response ← Proxy Server ← Target Server Response
 
 ## Testing & Usage
 
+### Local Development Setup
+
 ```bash
-# Start target server
+# Install dependencies
+npm install
+
+# Start target server (Terminal 1)
 node src/index.js
 
-# Start proxy server  
+# Start proxy server (Terminal 2)
 node src/proxy.js
 
 # Access test interface
-http://localhost:3000/test/
+http://localhost:3000
+```
+
+### Docker Setup (Recommended)
+
+```bash
+# Build and run with Docker
+docker build -t proxy-siem .
+docker run -p 3000:3000 -p 3001:3001 proxy-siem
+
+# Access test interface
+http://localhost:3000
 ```
 
 **Request Flow:** Browser → Proxy (3000) → Target (3001) → Response back

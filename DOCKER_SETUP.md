@@ -1,15 +1,15 @@
-# ExtraHop Proxy SIEM - Docker Setup
+#Proxy SIEM - Docker Setup
 
 ## Quick Start
 
 1. **Build the Docker image:**
    ```bash
-   docker build -t extrahop-proxy-siem .
+   docker build -t proxy-siem .
    ```
 
 2. **Run the application:**
    ```bash
-   docker run -p 3000:3000 -p 3001:3001 extrahop-proxy-siem
+   docker run -p 3000:3000 -p 3001:3001 proxy-siem
    ```
 
 3. **Access the test client:**

@@ -27,7 +27,7 @@ EXPOSE 3000 3001
 
 # Create startup script to run both servers
 RUN echo '#!/bin/sh' > start.sh && \
-    echo 'echo "Starting ExtraHop Proxy SIEM..."' >> start.sh && \
+    echo 'echo "Starting Proxy SIEM..."' >> start.sh && \
     echo 'echo "Target server starting on port 3001..."' >> start.sh && \
     echo 'node src/index.js &' >> start.sh && \
     echo 'echo "Proxy server starting on port 3000..."' >> start.sh && \
