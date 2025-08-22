@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!--AI GENDERATED:-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Proxy SIEM Test Client</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>🛡️ Security Proxy SIEM</h1>
+            <div class="status">
+                <span class="legend">🟢 Pass</span>
+                <span class="legend">🟡 Rate Limit</span>
+                <span class="legend">🔴 Block</span>
+            </div>
+        </header>
+
+        <!-- Security Status Panel -->
+        <div class="security-status">
+            <div class="truths-panel">
+                <h3>📋 Security Thresholds</h3>
+                <div class="truths-grid">
+                    <div class="truth-item">
+                        <strong>Rate Limits:</strong> 10 requests/60sec = MEDIUM | 3 logins/3min = HIGH FLAG
+                    </div>
+                    <div class="truth-item">
+                        <strong>Instant Flags:</strong> SQL Injection, XSS, Directory Traversal = HIGH
+                    </div>
+                    <div class="truth-item">
+                        <strong>Escalation:</strong> Any 2 flags from same IP = CRITICAL
+                    </div>
+                </div>
+            </div>
+            
+            <div class="threat-level">
+                <h3>🚦 Current Threat Level</h3>
+                <div class="traffic-light">
+                    <div class="light green active" id="greenLight"></div>
+                    <div class="light yellow" id="yellowLight"></div>
+                    <div class="light red" id="redLight"></div>
+                </div>
+                <div class="threat-status" id="threatStatus">SECURE</div>
+                <div class="flag-counter">Flags: <span id="flagCounter">0</span></div>
+            </div>
+        </div>
+
+        <!-- Main content area -->
+        <div class="main-content">
+            <!-- Test buttons panel -->
+            <div class="test-panel">
+                <div class="test-grid">
+                    <!-- Legitimate -->
+                    <div class="test-group">
+                        <h3>✅ Legitimate</h3>
+                        <button onclick="testLegitimateGet()" class="btn btn-success btn-sm">GET /</button>
+                        <button onclick="testLegitimateLogin()" class="btn btn-success btn-sm">Valid Login</button>
+                        <button onclick="testInvalidLogin()" class="btn btn-warning btn-sm">Bad Login</button>
+                    </div>
+
+                    <!-- SQL Injection -->
+                    <div class="test-group">
+                        <h3>💉 SQL Injection</h3>
+                        <button onclick="testSqlInjection1()" class="btn btn-danger btn-sm">OR 1=1</button>
+                        <button onclick="testSqlInjection2()" class="btn btn-danger btn-sm">UNION</button>
+                        <button onclick="testSqlInjection3()" class="btn btn-danger btn-sm">DROP</button>
+                    </div>
+
+                    <!-- Directory Traversal -->
+                    <div class="test-group">
+                        <h3>📁 Dir Traversal</h3>
+                        <button onclick="testDirectoryTraversal1()" class="btn btn-danger btn-sm">etc/passwd</button>
+                        <button onclick="testDirectoryTraversal2()" class="btn btn-danger btn-sm">system32</button>
+                        <button onclick="testDirectoryTraversal3()" class="btn btn-danger btn-sm">Encoded</button>
+                    </div>
+
+                    <!-- XSS -->
+                    <div class="test-group">
+                        <h3>🔗 XSS</h3>
+                        <button onclick="testXss1()" class="btn btn-danger btn-sm">Script</button>
+                        <button onclick="testXss2()" class="btn btn-danger btn-sm">JS Proto</button>
+                        <button onclick="testXss3()" class="btn btn-danger btn-sm">Event</button>
+                    </div>
+
+                    <!-- Rate Limiting -->
+                    <div class="test-group">
+                        <h3>⚡ Rate Limit</h3>
+                        <button onclick="testGeneralRateLimit()" class="btn btn-warning btn-sm">Spam GET</button>
+                        <button onclick="testLoginRateLimit()" class="btn btn-warning btn-sm">Spam Login</button>
+                        <button onclick="testEscalation()" class="btn btn-danger btn-sm">Escalate</button>
+                    </div>
+
+                    <!-- Combined -->
+                    <div class="test-group">
+                        <h3>🎯 Combined</h3>
+                        <button onclick="testCombinedAttack()" class="btn btn-danger btn-sm">Multi-Attack</button>
+                    </div>
+
+                    <!-- Utilities -->
+                    <div class="test-group">
+                        <h3>🛠️ Utilities</h3>
+                        <button onclick="showReadLogMenu()" class="btn btn-info btn-sm">Read Log</button>
+                        <button onclick="clearLogs()" class="btn btn-secondary btn-sm">Clear Output</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response output -->
+            <div class="output-panel">
+                            <div class="output-header">
+                <h3>📋 Response Log</h3>
+                <small>Monitor logs/ folder for security events</small>
+                <div class="disclaimer">
+                    <strong>⚠️ Traffic Light Limitation:</strong> The traffic light only reflects <em>stateless</em> security detections (SQL, XSS, Directory Traversal). 
+                    Rate limiting flags are logged by the proxy but not displayed here to keep the backend simple. 
+                    <br><strong>To fix this i would:</strong> Add an endpoint like <code>GET /api/violations</code> that returns the current violation state from <code>securityTrackingMap</code> for rendering the traffic light state.
+                </div>
+            </div>
+                <div id="responseLog" class="response-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Selection Modal -->
+    <div id="logModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📖 Select Log File to Read</h3>
+                <button onclick="closeLogModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <button onclick="readLogFile('security-critical.log')" class="btn btn-danger modal-btn">🚨 Critical Log</button>
+                <button onclick="readLogFile('security-high.log')" class="btn btn-warning modal-btn">⚠️ High Severity Log</button>
+                <button onclick="readLogFile('security-medium.log')" class="btn btn-info modal-btn">ℹ️ Medium Severity Log</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="client.js"></script>
+</body>
+</html> 

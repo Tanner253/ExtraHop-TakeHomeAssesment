@@ -1,2 +1,5 @@
 *.txt
 insructions.txt
+node_modules
+logs
+.env
