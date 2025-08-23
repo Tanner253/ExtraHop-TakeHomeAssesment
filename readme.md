@@ -84,7 +84,7 @@ Client Response ← Proxy Server ← Target Server Response
 - **Common methods:** `<script>alert('XSS')</script>`, `javascript:alert(1)`, `<img onerror="alert(1)" src="x">`
 - **Target:** User input fields, comments, search results, any reflected content
 
-**Brute Force**
+**Brute Force (General & Login respectivley)**
 - **What:** Repeated login attempts to guess credentials or overwhelm rate limits
 - **Common methods:** Automated password guessing, credential stuffing, rapid-fire requests
 - **Target:** Login endpoints, authentication systems, API rate limits
