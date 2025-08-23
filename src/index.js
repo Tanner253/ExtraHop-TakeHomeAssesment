@@ -8,13 +8,12 @@ const PORT = 3001;
 //prevent huge payloads
 app.use(express.json({limit: '10mb'}));
 
-
 app.get('/', (req, res) => {
     res.send('✅ SUCCESS: Data received from backend server (port 3001) through proxy (port 3000) - Connection verified!');
 });
 
 app.get('/test', (req, res) => {
-    res.send('Hello World - Web Server Resource');
+    res.send('Hello World - Web Server Resource at test endpoint');
 });
 
 app.post('/login', (req, res) => {
@@ -23,6 +22,7 @@ app.post('/login', (req, res) => {
     }
     
     const { username, password } = req.body;
+    //hardcoded for testing purposes
     if (username === 'testuser' && password === 'testpass') {
         res.send('Login successful');
     } else {
