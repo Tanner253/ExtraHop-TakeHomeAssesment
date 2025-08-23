@@ -18,7 +18,7 @@ const SECURITY_LIMITS = {
     LOGIN: { max: loginMaxAttempts, window: loginTimeWindow, level: levels.HIGH },
 };
 
-// Cleanup old tracking data every 10 minutes
+// Cleanup old tracking data every 10 minutes to prevent memory leaks
 setInterval(() => {
     const cutoffTime = Date.now() - (10 * 60 * 1000); // 10 minutes ago
     for (const [key, value] of securityTrackingMap.entries()) {
@@ -121,9 +121,6 @@ const passesStatelessChecks = (req) => {
     const directoryTraversalDetected = checkForDirectoryTraversal(req);
     const scriptInjectionDetected = checkForScriptInjection(req);
 
-    // Debug logging
-    console.log(`REQUEST: ${req.url} - SQL:${sqlInjectionDetected} DIR:${directoryTraversalDetected} XSS:${scriptInjectionDetected}`);
-
     // Return true only if NO threats detected
     return !sqlInjectionDetected && !directoryTraversalDetected && !scriptInjectionDetected;
 }
@@ -132,7 +129,7 @@ const passesStatefulChecks = (req) => {
     const clientIpAddress = req.socket.remoteAddress;
     const isLoginAttempt = req.path.includes('/login');
     
-    // Skip rate limiting for static assets and browser/extension requests
+    // Skip rate limiting for static assets and browser/extension requests (ai helped with this one)
     if (req.path.match(/\.(css|js|html|png|jpg|ico|favicon)$/) || 
         req.path.includes('current-url') || 
         req.path.includes('.identity') ||

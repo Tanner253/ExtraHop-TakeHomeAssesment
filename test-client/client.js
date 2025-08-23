@@ -1,4 +1,5 @@
 // Simple Proxy SIEM Test Client
+// AI GENERATED:
 class ProxyTestClient {
     constructor() {
         this.baseUrl = 'http://localhost:3000';

@@ -4,6 +4,9 @@
 
 I used an LLM bouncing strategy (Gemini → Claude → Gemini) to better understand the problem domain and create a comprehensive approach. This helped me identify that the core challenge isn't building HTTP infrastructure, but designing effective security detection logic, helped me further understand the problem and its requirements, and brainstorm possible solutions.
 
+
+- note I offloaded pretty much ALL of the front end to an LLM agent, as the assment focuses on the proxy logic itself.
+
 **Mission:** Build an HTTP reverse proxy from scratch in Node.js that inspects incoming traffic and blocks specific threats (SQL injection, directory traversal, brute-force attacks). Focus on simplicity, practical utility, and performance.
 
 ---
