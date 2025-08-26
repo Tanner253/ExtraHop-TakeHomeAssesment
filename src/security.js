@@ -13,12 +13,14 @@ const generalMaxRequests = parseInt(process.env.GENERAL_MAX_REQUESTS) || 10;
 const loginMaxAttempts = parseInt(process.env.LOGIN_MAX_ATTEMPTS) || 3;
 const cleanupInterval = parseInt(process.env.CLEANUP_INTERVAL) || 600000;
 
+
+//used to determine different logging data depending on resource being hit (login vs general)
 const SECURITY_LIMITS = {
     GENERAL: { max: generalMaxRequests, window: generalTimeWindow, level: levels.MEDIUM },
     LOGIN: { max: loginMaxAttempts, window: loginTimeWindow, level: levels.HIGH },
 };
 
-// Cleanup old tracking data every 10 minutes to prevent memory leaks
+// Cleanup old tracking data every 10 minutes to prevent memory leaks. If we dont do this, the map will grow indefinitely.
 setInterval(() => {
     const cutoffTime = Date.now() - (10 * 60 * 1000); // 10 minutes ago
     for (const [key, value] of securityTrackingMap.entries()) {
@@ -129,7 +131,7 @@ const passesStatefulChecks = (req) => {
     const clientIpAddress = req.socket.remoteAddress;
     const isLoginAttempt = req.path.includes('/login');
     
-    // Skip rate limiting for static assets and browser/extension requests (ai helped with this one)
+    // Skip rate limiting for static assets and browser/extension requests (ai helped with this one, was getting rate limited by static assets and extensions)
     if (req.path.match(/\.(css|js|html|png|jpg|ico|favicon)$/) || 
         req.path.includes('current-url') || 
         req.path.includes('.identity') ||
@@ -151,13 +153,20 @@ const updateRateLimit = (clientIpAddress, rateLimitType, securityLimits) => {
     const currentTimestamp = Date.now();
     const rateLimitKey = `${clientIpAddress}_${rateLimitType}_history`;
     
+    //get or create request history
     let ipRequestHistory = securityTrackingMap.get(rateLimitKey) || { requests: [] };
+
+    //clear old requests
     ipRequestHistory.requests = ipRequestHistory.requests.filter(requestTimestamp => 
         currentTimestamp - requestTimestamp < securityLimits.window
     );
+
+    //add request to history
     ipRequestHistory.requests.push(currentTimestamp);
+    //initialize security tracking map
     securityTrackingMap.set(rateLimitKey, ipRequestHistory);
 
+    //check if rate limit exceeded
     const rateLimitExceeded = ipRequestHistory.requests.length > securityLimits.max;
     if (rateLimitExceeded) {
         const escalationKey = `${clientIpAddress}_${rateLimitType}_violation`;
@@ -173,6 +182,8 @@ const updateRateLimit = (clientIpAddress, rateLimitType, securityLimits) => {
 }
 
 
+//all methods below use the same pattern, concatenate the url and body to make a string, then check for patterns from the patterns array against the string.
+//I Initially thought to handle all of the request components seperatley so this is my optimized version, I am not exactly sure how i would improve this, going for readability > complexity.
 const checkForSqlInjection = (req) => {
     const checkString = `${decodeURIComponent(req.url)} ${JSON.stringify(req.body || {})}`;
     const sqlFound = SQL_INJECTION_PATTERNS.some(pattern => pattern.test(checkString));
