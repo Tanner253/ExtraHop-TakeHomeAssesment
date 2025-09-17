@@ -1,5 +1,5 @@
 # HTTP Security Proxy - Thought Process
-
+NEED REDIS OR STICKY SESSIONS TO HANDLE MULTIPLE CLIENTS, OTHERWISE THE LOAD BALANCER MAY ALLOW USERS TO BYPASS RATE LIMITS (5 ON 3 DIFFERENT SERVERS == 15 ALARMS BUT NO TRIGGER BECAUSE 15 IS THE THRESHOLD.)
 ## Problem Analysis & Approach
 
 I used an LLM bouncing strategy (Gemini → Claude → Gemini) to better understand the problem domain and create a comprehensive approach. This helped me identify that the core challenge isn't building HTTP infrastructure, but designing effective security detection logic, helped me further understand the problem and its requirements, and brainstorm possible solutions.
