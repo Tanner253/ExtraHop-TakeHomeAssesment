@@ -198,3 +198,15 @@ http://localhost:3000
 **Request Flow:** Browser → Proxy (3000) → Target (3001) → Response back
 
 **Log Output:** Security events in `logs/security-{critical|high|medium}.log`
+
+
+
+The fundamental issue is that each container instance maintains its own isolated state. When I scale horizontally,
+the rate limiting becomes ineffective because an attacker can bypass limits by distributing requests across instances.
+there is currently state isolation where every instance has its own map. we need shared memory. if the container restarts we lose all rate limiting history.
+
+Cloud infrastructure and scalability to ensure users hit same resource and do not bypass limits:
+
+sticky sessions
+
+redis? for scaling, but costs go up. offers ELB resources and load balancing tools.

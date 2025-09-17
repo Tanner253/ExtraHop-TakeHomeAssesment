@@ -1,6 +1,12 @@
 'use strict';
 require('dotenv').config({ path: '.env' });
 
+//Bypass Methods and vulnerabilities:
+//Double URL encoding: %252e%252e%252f → %2e%2e%2f → ../
+//Headers aren't checked (SQL in User-Agent, Referer)
+//Query parameters parsed by Express aren't checked
+//Case variations: SeLeCt * FrOm users
+
 const securityTrackingMap = new Map();
 const securityLogger = require('./logger');
 const logger = new securityLogger();
@@ -131,7 +137,7 @@ const passesStatefulChecks = (req) => {
     const clientIpAddress = req.socket.remoteAddress;
     const isLoginAttempt = req.path.includes('/login');
     
-    // Skip rate limiting for static assets and browser/extension requests (ai helped with this one, was getting rate limited by static assets and extensions)
+    // Skip rate limiting for static assets and browser/extension requests (ai helped with this one, was getting rate limited by static assets and extensions) this could lead me open to attacks.
     if (req.path.match(/\.(css|js|html|png|jpg|ico|favicon)$/) || 
         req.path.includes('current-url') || 
         req.path.includes('.identity') ||
@@ -175,6 +181,7 @@ const updateRateLimit = (clientIpAddress, rateLimitType, securityLimits) => {
         
             const violationDetails = `Rate limit exceeded: ${ipRequestHistory.requests.length}/${securityLimits.max}`;
             logger.log(clientIpAddress, rateLimitType, violationDetails, securityLimits.level);
+
             checkEscalation(clientIpAddress);
         }
     }
@@ -193,7 +200,6 @@ const checkForSqlInjection = (req) => {
         securityTrackingMap.set(`${req.socket.remoteAddress}_sql_attack`, { detected: true, timestamp: Date.now() });
         checkEscalation(req.socket.remoteAddress);
     }
-    
     return sqlFound;
 }
 

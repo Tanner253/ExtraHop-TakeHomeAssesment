@@ -13,6 +13,12 @@ const host = 'localhost';
 app.use(express.json({limit: '10mb'}));
 app.use(express.urlencoded({extended: true}));
 
+//I chose root-level static serving for cleaner URLs, but I had to implement bypass logic in my security middleware. 
+// In hindsight, using a /static prefix would eliminate the need for bypasses and create cleaner separation between 
+// static assets and API endpoints... current approach creates a potential security vulnerability where attackers
+// could bypass validation by appending file extensions to malicious requests.
+app.use(express.static(path.join(__dirname, '../test-client')));
+
 //read the logs from the logs folder for the front end to display
 app.get('/logs/:filename/read', (req, res) => {
     const filename = req.params.filename;
@@ -70,10 +76,10 @@ app.use((req, res, next) => {
     }
 });
 
-app.use(express.static(path.join(__dirname, '../test-client')));
 
 // Proxy ALL requests to backend server (after security validation)
 app.use((req, res) => {
+    //phone number
     const proxyOptions = {
         host: host,
         port: 3001,
@@ -81,6 +87,7 @@ app.use((req, res) => {
         method: req.method,
         headers: req.headers
     }
+    //phone call
     const proxy = http.request(proxyOptions, (proxyResponse) => {
         res.writeHead(proxyResponse.statusCode, proxyResponse.headers);
         //we will just stream the data back to the client, if the proxy OK's the request then we send the data, end of story.
@@ -96,6 +103,10 @@ app.use((req, res) => {
             });
             
             // Handle request body for different HTTP methods
+            //this is a bit of a hack, but it works, I would like to improve this in the future.
+            //need to handle no content type header and also handle no content length. 
+
+            //would need to use raw middleware and stream piping to handle this better, to account for file uploads, xml payloads, and graphQL queries.
             if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
                 if (req.body) {
                     // Send the parsed body as JSON

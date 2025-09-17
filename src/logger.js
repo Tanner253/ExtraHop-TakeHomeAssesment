@@ -1,5 +1,10 @@
 'use strict';
 
+//Problem: Synchronous file I/O blocks the event loop. Every security event freezes your entire proxy.
+//Production Impact: Under attack (when you need logs most), your proxy becomes unusable.
+
+//proper solution : Proxy → CloudWatch Logs     
+
 const path = require('path');
 const fs = require('fs');
 
